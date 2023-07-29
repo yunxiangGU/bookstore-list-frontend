@@ -1,113 +1,113 @@
-import Image from 'next/image'
+"use client";
+import React, { useEffect, useState } from "react";
+import { Author, Book, Bookstore, Country } from "./types";
+import BookstoreCard from "./BookstoreCard";
 
-export default function Home() {
+export default function BookstoresList() {
+  let [bookstores, setBookstores] = useState<Bookstore[]>([]);
+
+  function fetchBookstoresList() {
+    // tweaked default back-end API port from 3000 to 4000 to avoid conflict with front-end
+    fetch("http://localhost:4000/stores")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Error fetching book stores list");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        let respCountries = data.included
+          .filter((item: any) => {
+            return item.type === "countries";
+          })
+          .map((country: any) => {
+            return {
+              id: parseInt(country.id),
+              code: country.attributes.code,
+            };
+          });
+        let respAuthors = data.included
+          .filter((item: any) => {
+            return item.type === "authors";
+          })
+          .map((author: any) => {
+            return {
+              id: parseInt(author.id),
+              fullName: author.attributes.fullName,
+            };
+          });
+        let respBooks = data.included
+          .filter((item: any) => {
+            return item.type === "books";
+          })
+          .map((book: any) => {
+            return {
+              id: parseInt(book.id),
+              name: book.attributes.name,
+              author: respAuthors.find(
+                (author: Author) =>
+                  author.id == book.relationships.author.data.id
+              ),
+              copiesSold: book.attributes.copiesSold,
+            };
+          });
+        let respBookstores = data.data.map((bookstore: any) => {
+          return {
+            id: parseInt(bookstore.id),
+            name: bookstore.attributes.name,
+            establishmentDate: bookstore.attributes.establishmentDate,
+            rating: bookstore.attributes.rating,
+            storeImage: bookstore.attributes.storeImage,
+            website: bookstore.attributes.website,
+            // it is possible that bookstores can run out of books
+            books: bookstore.relationships.books
+              ? bookstore.relationships.books.data.map((storeBook: any) => {
+                  return respBooks.find(
+                    (book: Book) => book.id == storeBook.id
+                  );
+                })
+              : [],
+            // each bookstore belongs to one and only one country
+            country: respCountries.find(
+              (country: Country) =>
+                country.id == bookstore.relationships.countries.data.id
+            ),
+          };
+        });
+        setBookstores(respBookstores);
+      })
+      .catch((error) => {
+        console.error("Fetch error:", error);
+      });
+  }
+
+  useEffect(() => {
+    fetchBookstoresList();
+  }, []);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+    <main className="flex min-h-screen flex-col items-center p-24">
+      {bookstores.map((bookstore: Bookstore) => {
+        console.log("books: ", bookstore.books);
+        return (
+          <BookstoreCard
+            key={bookstore.id}
+            id={bookstore.id}
+            name={bookstore.name}
+            establishmentDate={bookstore.establishmentDate}
+            website={bookstore.website}
+            countryCode={bookstore.country.code}
+            storeImage={bookstore.storeImage}
+            rating={bookstore.rating}
+            topBooks={bookstore.books
+              .sort(
+                (bookA: Book, bookB: Book) =>
+                  bookB.copiesSold - bookA.copiesSold
+              )
+              .slice(0, 2)}
+          />
+        );
+      })}
     </main>
-  )
+  );
 }
