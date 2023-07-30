@@ -15,7 +15,7 @@ export default function BookstoreCard(props: any) {
           <div className="flex flex-col md:flex-row items-start md:items-center w-full">
             <span className="font-bold text-xl">{props.name}</span>
             <div className="hidden md:block flex-1" />
-            <StarRating rating={props.rating} />
+            <StarRating bookstoreID={props.id} rating={props.rating} />
           </div>
           <div className="grid grid-cols-2 w-full border">
             <div className="col-span-2 p-2 border font-bold">

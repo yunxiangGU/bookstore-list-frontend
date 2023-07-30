@@ -8,7 +8,8 @@ export default function BookstoresList() {
 
   function fetchBookstoresList() {
     // tweaked default back-end API port from 3000 to 4000 to avoid conflict with front-end
-    fetch("http://localhost:4000/stores")
+    const url = "http://localhost:4000/stores";
+    fetch(url)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Error fetching book stores list");
@@ -88,7 +89,6 @@ export default function BookstoresList() {
   return (
     <main className="flex min-h-screen flex-col items-center p-10">
       {bookstores.map((bookstore: Bookstore) => {
-        console.log("books: ", bookstore.books);
         return (
           <BookstoreCard
             key={bookstore.id}

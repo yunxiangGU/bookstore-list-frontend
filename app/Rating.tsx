@@ -15,10 +15,52 @@ function StarIcon() {
   );
 }
 
-export default function StarRating(props: { rating: number }) {
+export default function StarRating(props: {
+  bookstoreID: number;
+  rating: number;
+}) {
   let [rating, setRating] = useState(props.rating);
   let [hover, setHover] = useState(0);
-  // TODO: make POST request once adjusted star rating
+
+  function handleUpdateBookstoreRating(bookstoreID: string, newRating: number) {
+    const url = `http://localhost:4000/stores/${bookstoreID}`;
+
+    const data = {
+      data: {
+        id: bookstoreID,
+        type: "stores",
+        attributes: {
+          rating: newRating,
+        },
+      },
+    };
+
+    const requestOptions = {
+      method: "PATCH",
+      headers: {
+        // refering to https://jsonapi.org/format/#crud-updating-resource-attributes
+        "Content-Type": "application/vnd.api+json",
+        Accept: "application/vnd.api+json",
+      },
+      body: JSON.stringify(data), // Convert the data object to JSON string
+    };
+
+    // Make the POST request using fetch
+    fetch(url, requestOptions)
+      .then((response) => {
+        console.log(
+          `Update rating for bookstore ${bookstoreID} response: `,
+          response
+        );
+      })
+      .catch((error) => {
+        console.error(
+          `Error updating rating for bookstore ${bookstoreID}:`,
+          error
+        );
+      });
+  }
+
   return (
     <div className="star-rating">
       {[...Array(5)].map((star, index) => {
@@ -28,7 +70,10 @@ export default function StarRating(props: { rating: number }) {
             type="button"
             key={index}
             className={index <= (hover || rating) ? "on" : "off"}
-            onClick={() => setRating(index)}
+            onClick={() => {
+              setRating(index); // optimistically update UI first
+              handleUpdateBookstoreRating(props.bookstoreID.toString(), index);
+            }}
             onMouseEnter={() => setHover(index)}
             onMouseLeave={() => setHover(rating)}
           >
