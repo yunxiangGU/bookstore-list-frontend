@@ -26,3 +26,7 @@ This is a React project for a mock bookstore list app.
 - Able to go to bookstore website by clicking the hyperlink
 - Able to change bookstore rating by hovering and clicking stars
 - Able to view on mobile screens of different sizes without layout breaking
+
+## Discussion
+
+- Wireframe is assumably for desktop display. No wireframe for mobile found. So I took liberty in the responsive layout.
