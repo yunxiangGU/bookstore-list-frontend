@@ -11,3 +11,18 @@ This is a React project for a mock bookstore list app.
 - Serve it on the port 3000 by running `npm run dev`
 
 - Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Features and Key Functionalities
+
+- Able to display key information such as 
+  - bookstore name
+  - bookstore image (with round border)
+  - book name
+  - book author
+  - bookstore rating
+  - bookstore country
+  - bookstore establishment data
+  - bookstore website
+- Able to go to bookstore website by clicking the hyperlink
+- Able to change bookstore rating by hovering and clicking stars
+- Able to view on mobile screens of different sizes without layout breaking
