@@ -86,7 +86,7 @@ export default function BookstoresList() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
+    <main className="flex min-h-screen flex-col items-center p-10">
       {bookstores.map((bookstore: Bookstore) => {
         console.log("books: ", bookstore.books);
         return (
